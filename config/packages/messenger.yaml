@@ -1,0 +1,22 @@
+framework:
+    messenger:
+        transports:
+            # This is your Redis "pipe"
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+
+            # --- COMMENT OUT THESE LINES ---
+            # failed: 'doctrine://default?queue_name=failed'
+            # failure_transport: failed
+            # --- END OF COMMENTED LINES ---
+
+        routing:
+            # Route your messages to the transports
+            'App\Message\ProcessPresentationJob': async
+
+# when@test:
+#    framework:
+#        messenger:
+#            transports:
+#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
+#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
+#                async: 'in-memory://'
