@@ -43,50 +43,38 @@ services:
         restart: unless-stopped
         container_name: ${DOCKER_PROJECT_NAME}_redis
 
-    # Backup block. Turns on with docker compose --profile backup up -d
-    telegram-bot-api:
-        profiles:
-            - backup
-        env_file:
-            - .env.backup.local # copy from .env.backup.local.example as a template
-        image: ghcr.io/bots-house/docker-telegram-bot-api:latest
-        container_name: ${DOCKER_PROJECT_NAME}_tgbot
-        restart: unless-stopped
-        environment:
-            TELEGRAM_LOCAL: "true"
-        volumes:
-            - ./docker/tgbot/data:/var/lib/telegram-bot-api
 
-    backup:
-        profiles:
-            - backup
-        env_file:
-            - .env.backup.local # copy from .env.backup.local.example as a template
-        build: ./docker/backup
-        container_name: ${DOCKER_PROJECT_NAME}_backup
-        restart: unless-stopped
-        depends_on:
-            - db
-            - telegram-bot-api
-        environment:
-            PROJECT_NAME: ${DOCKER_PROJECT_NAME}
-            API_HOST: "telegram-bot-api:8081"
-            DB_ENGINE: mysql # or pgsql
-            DB_HOST: db
-            DB_PORT: 3306 # for pgsql use 5432
-            DB_NAME: ${DOCKER_PROJECT_NAME}
-            DB_USER: root
-            DB_PASS: ${DATABASE_PASSWORD}
-            PROJECT_PATH: /var/www/html
-            EXCLUDES: "vendor node_modules var/log storage/logs .git docker/nginx/logs"
-        volumes:
-            - ./:/var/www/html:ro
-        command:
-            - sh
-            - -lc
-            - |
-                printf "%s\n" "0 0 * * * /usr/local/bin/backup.sh >> /var/log/cron.log 2>&1" > /etc/crontabs/root
-                crond -f -l 8
+
+#    backup:
+#        profiles:
+#            - backup
+#        env_file:
+#            - .env.backup.local # copy from .env.backup.local.example as a template
+#        build: ./docker/backup
+#        container_name: ${DOCKER_PROJECT_NAME}_backup
+#        restart: unless-stopped
+#        depends_on:
+#            - db
+#            - telegram-bot-api
+#        environment:
+#            PROJECT_NAME: ${DOCKER_PROJECT_NAME}
+#            API_HOST: "telegram-bot-api:8081"
+#            DB_ENGINE: mysql # or pgsql
+#            DB_HOST: db
+#            DB_PORT: 3306 # for pgsql use 5432
+#            DB_NAME: ${DOCKER_PROJECT_NAME}
+#            DB_USER: root
+#            DB_PASS: ${DATABASE_PASSWORD}
+#            PROJECT_PATH: /var/www/html
+#            EXCLUDES: "vendor node_modules var/log storage/logs .git docker/nginx/logs"
+#        volumes:
+#            - ./:/var/www/html:ro
+#        command:
+#            - sh
+#            - -lc
+#            - |
+#                printf "%s\n" "0 0 * * * /usr/local/bin/backup.sh >> /var/log/cron.log 2>&1" > /etc/crontabs/root
+#                crond -f -l 8
 
 
     # #######################################################################
