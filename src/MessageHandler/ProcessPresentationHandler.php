@@ -14,6 +14,8 @@ use PhpOffice\PhpPresentation\Shape\RichText;
 use PhpOffice\PhpPresentation\Shape\RichText\TextRun;
 use PhpOffice\PhpPresentation\Shape\Table;
 use PhpOffice\PhpPresentation\Shape\Group;
+use PhpOffice\PhpPresentation\Shape\AutoShape;
+use PhpOffice\PhpPresentation\Shape\TextBox;
 
 #[AsMessageHandler]
 class ProcessPresentationHandler
@@ -42,7 +44,6 @@ class ProcessPresentationHandler
             error_log(" -- WORKER: Extracted Text for $jobId --- ");
 
             $aiFeedback = $this->geminiService->getFeedbackForPresentation($extractedText);
-            error_log("WORKER: Got ai  $jobId --- ");
 
             $result->setStatus('complete');
             $result->setFeedback($aiFeedback);
@@ -61,7 +62,7 @@ class ProcessPresentationHandler
             }
         }
 
-        // SAVE THE FINAL RESULT
+
         $this->entityManager->flush();
         error_log(" --- WORKER: job $jobId finished");
     }
