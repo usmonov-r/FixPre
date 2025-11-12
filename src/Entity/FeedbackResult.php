@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FeedbackResultRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: FeedbackResultRepository::class)]
 #[ApiResource]
@@ -31,6 +32,9 @@ class FeedbackResult
     {
         $this->created_at = new \DateTimeImmutable();
     }
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'feedbackResults')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $user = null;
 
     public function getId(): ?int
     {

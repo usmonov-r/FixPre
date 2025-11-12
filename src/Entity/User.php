@@ -169,6 +169,11 @@ class User implements
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $deletedBy = null;
 
+    public function __construct()
+    {
+        $this->roles = ["ROLE_USER"];
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -189,7 +194,10 @@ class User implements
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
+
+        if (empty($roles)) {
+            $roles[] = 'ROLE_USER';
+        }
 
         return array_unique($roles);
     }
