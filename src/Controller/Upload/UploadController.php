@@ -2,10 +2,11 @@
 
 namespace App\Controller\Upload;
 
- use App\Entity\FeedbackResult;
- use App\Message\ProcessPresentationJob;
- use Doctrine\ORM\EntityManagerInterface;
- use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Repository\UserRepository;
+use App\Entity\FeedbackResult;
+use App\Message\ProcessPresentationJob;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -26,7 +27,8 @@ class UploadController extends AbstractController
         Request $request,
         MessageBusInterface $bus,
         SluggerInterface $slugger,
-        string $uploadsDirectory
+        string $uploadsDirectory,
+        UserRepository  $userRepo,
     ): Response {
         $file = $request->files->get('presentation');
 
@@ -38,6 +40,16 @@ class UploadController extends AbstractController
 
         $feedbackResult = new FeedbackResult();
         $feedbackResult->setJobId($jobId);
+
+        $userDTO = $this->getUser();
+
+        if($userDTO){
+            $realUser = $userRepo->findOneBy(['email' => $userDTO->getEmail()]);
+
+            if($realUser){
+                $feedbackResult->setUser($realUser);
+            }
+        }
 
         if($this->getUser()) {
             $feedbackResult->setUser($this->getUser());
