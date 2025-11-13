@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Uid\Uuid;
 
@@ -23,6 +24,7 @@ class UploadController extends AbstractController
     {}
 
     #[Route('/api/upload', name: 'api_upload', methods: ['POST'])]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function upload(
         Request $request,
         MessageBusInterface $bus,
@@ -40,11 +42,12 @@ class UploadController extends AbstractController
 
         $feedbackResult = new FeedbackResult();
         $feedbackResult->setJobId($jobId);
+        $feedbackResult->setStatus('pending');
 
         $userDTO = $this->getUser();
 
         if($userDTO){
-            $realUser = $userRepo->findOneBy(['email' => $userDTO->getEmail()]);
+            $realUser = $userRepo->findOneBy(['email' => $userDTO->getUserIdentifier()]);
 
             if($realUser){
                 $feedbackResult->setUser($realUser);
@@ -55,6 +58,7 @@ class UploadController extends AbstractController
             $feedbackResult->setUser($this->getUser());
         }
         $this->entityManager->persist($feedbackResult);
+        $this->entityManager->flush();
 
         $newFileName = $jobId . '.' . $file->guessExtension();
 

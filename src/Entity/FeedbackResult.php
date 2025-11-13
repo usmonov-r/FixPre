@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FeedbackResultRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: FeedbackResultRepository::class)]
 #[ApiResource]
@@ -14,18 +15,23 @@ class FeedbackResult
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['feedback:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['feedback:read'])]
     private ?string $job_id = null;
 
     #[ORM\Column(length: 50)]
+    #[Groups(['feedback:read'])]
     private ?string $status = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['feedback:read'])]
     private ?array $feedback = null;
 
     #[ORM\Column]
+    #[Groups(['feedback:read'])]
     private ?\DateTimeImmutable $created_at = null;
 
     public function __construct()

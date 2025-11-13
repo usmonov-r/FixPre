@@ -6,6 +6,7 @@ use App\Entity\FeedbackResult;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Message\ProcessPresentationJob;
 use App\Service\GeminiFeedbackService;
+use App\Repository\FeedbackResultRepository;
 
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -22,7 +23,9 @@ class ProcessPresentationHandler
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private GeminiFeedbackService $geminiService
+        private GeminiFeedbackService $geminiService,
+        private FeedbackResultRepository $repository
+
     ){
     }
 
@@ -31,11 +34,14 @@ class ProcessPresentationHandler
         $jobId = $job->getJobId();
         $filepath = $job->getFilePath();
 
-        $result = new FeedbackResult();
-        $result->setJobId($jobId);
-        $result->setStatus('pending');
-        $this->entityManager->persist($result);
-        $this->entityManager->flush();
+
+        // fetch the existing job
+        $result = $this->repository->findOneBy(['job_id' => $jobId]);
+
+        if (!$result){
+            error_log(" --- WORKER: FAILED, Job $jobId not found in db. ---- ");
+            return;
+        }
 
         error_log("--- WORKER: Job $jobId, Status set a PENDING  ---- ");
 
