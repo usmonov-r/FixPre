@@ -53,6 +53,7 @@ class ProcessPresentationHandler
 
             $result->setStatus('complete');
             $result->setFeedback($aiFeedback);
+            $result->setOverallScore((int)$aiFeedback['overall_score']);
 
         } catch (\Exception $e) {
             error_log("--- WORKER: FAILED for $jobId --- ");

@@ -42,6 +42,10 @@ class FeedbackResult
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['feedback:read'])]
+    private ?int $overallScore = null;
+
     public function getUser(): User
     {
         return $this->user;
@@ -100,6 +104,18 @@ class FeedbackResult
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getOverallScore(): ?int
+    {
+        return $this->overallScore;
+    }
+
+    public function setOverallScore(?int $overallScore): static
+    {
+        $this->overallScore = $overallScore;
 
         return $this;
     }
