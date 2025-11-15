@@ -22,6 +22,7 @@ class ResultController extends  AbstractController
             'jobId' => $result->getJobId(),
             'status' => $result->getStatus(),
             'feedback' => $result->getFeedback(),
+            'overallScore' => $result->getOverallScore(),
             'createdAt' => $result->getCreatedAt()->format('c')
         ];
         return $this->json($data);
