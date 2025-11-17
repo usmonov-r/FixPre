@@ -12,9 +12,13 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Component\User\Dtos\PasswordRequestDto;
+use App\Component\User\Dtos\PasswordResetDto;
 use App\Component\User\Dtos\RefreshTokenRequestDto;
 use App\Component\User\Dtos\TokensDto;
-use App\Controller\DeleteAction;
+use App\Controller\Feedback\DeleteAction;
+use App\Controller\PasswordRequestAction;
+use App\Controller\PasswordResetAction;
 use App\Controller\UserAboutMeAction;
 use App\Controller\UserAuthAction;
 use App\Controller\UserAuthByRefreshTokenAction;
@@ -106,6 +110,28 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "object == user || is_granted('ROLE_ADMIN')",
             name: 'changePassword',
         ),
+        new Post(
+            uriTemplate: 'users/password/request',
+            controller: PasswordRequestAction::class,
+            openapi: new Operation(
+                summary: 'Request a password reset email'
+            ),
+            denormalizationContext: ['groups' => ['password:request']],
+            security: "is_granted('PUBLIC_ACCESS')",
+            input: PasswordRequestDto::class,
+            name: 'requestPassword',
+        ),
+        new Post(
+            uriTemplate: 'users/password/reset',
+            controller: PasswordResetAction::class,
+            openapi: new Operation(
+                summary: 'Reset a password using a token'
+            ),
+            denormalizationContext: ['groups' => ['password:reset']],
+            security: "is_granted('PUBLIC_ACCESS')",
+            input: PasswordResetDto::class,
+            name: 'resetPassword',
+        ),
     ],
     normalizationContext: ['groups' => ['user:read', 'users:read']],
     denormalizationContext: ['groups' => ['user:write']],
@@ -168,6 +194,12 @@ class User implements
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $deletedBy = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTime $passwordResetExpiresAt = null;
 
     public function __construct()
     {
@@ -260,6 +292,30 @@ class User implements
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getPasswordResetToken(): ?string
+    {
+        return $this->passwordResetToken;
+    }
+
+    public function setPasswordResetToken(?string $passwordResetToken): static
+    {
+        $this->passwordResetToken = $passwordResetToken;
+
+        return $this;
+    }
+
+    public function getPasswordResetExpiresAt(): ?\DateTime
+    {
+        return $this->passwordResetExpiresAt;
+    }
+
+    public function setPasswordResetExpiresAt(?\DateTime $passwordResetExpiresAt): static
+    {
+        $this->passwordResetExpiresAt = $passwordResetExpiresAt;
 
         return $this;
     }

@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\FeedbackResult;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-
+use App\Entity\User;
 /**
  * @extends ServiceEntityRepository<FeedbackResult>
  */
@@ -14,6 +14,25 @@ class FeedbackResultRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, FeedbackResult::class);
+    }
+
+    public function findUserStats(User $user): array
+    {
+        return $this->createQueryBuilder('f') // 'f' == FeedbackResult
+            ->select('AVG(f.overallScore) as averageScore, COUNT(f.id) as totalPresentations')
+            ->where('f.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleResult();
+    }
+
+    public function findAverageStats(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->select('AVG(f.overallScore) as platformAverage')
+            ->where('f.overallScore IS NOT NULL')
+            ->getQuery()
+            ->getSingleResult();
     }
 
     //    /**

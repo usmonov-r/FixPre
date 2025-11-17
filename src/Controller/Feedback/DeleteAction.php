@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Controller\Feedback;
 
 use App\Component\Core\MarkEntityAsDeleted;
 use App\Controller\Base\AbstractController;

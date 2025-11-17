@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Feedback;
 //use App\Controller\Base\AbstractController;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\FeedbackResultRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
