@@ -5,13 +5,15 @@ namespace App\Controller;
 use App\Component\User\Dtos\PasswordRequestDto;
 use App\Controller\Base\AbstractController;
 use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-class PasswordRequestAction extends  AbstractController
+class PasswordRequestAction extends AbstractController
 {
     public function __invoke(
         PasswordRequestDto $data,
@@ -21,10 +23,10 @@ class PasswordRequestAction extends  AbstractController
         LoggerInterface $logger
     ): JsonResponse {
         $user = $userRepository->findOneBy(['email' => $data->getEmail()]);
-        if($user) {
-            try{
+        if ($user) {
+            try {
                 $token = bin2hex(random_bytes(32));
-                $expires = new \DateTime('+1 hour');
+                $expires = new DateTime('+1 hour');
 
                 $user->setPasswordResetToken($token);
                 $user->setPasswordResetExpiresAt($expires);
@@ -46,12 +48,11 @@ class PasswordRequestAction extends  AbstractController
                         "<p>If you did not request this, you can safely ignore this email.</p>"
                     );
                 $mailer->send($email);
-
-            }catch (\Exception $e){
+            } catch (Exception $e) {
                 // log error but don't expose it to the user's email msg
-                $logger->error('Failed to send password reset email '. $e->getMessage());
+                $logger->error('Failed to send password reset email ' . $e->getMessage());
             }
-        }else{
+        } else {
             return $this->json([
                 'message' => 'User does not exist in database'
             ]);

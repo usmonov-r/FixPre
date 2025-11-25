@@ -3,9 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\FeedbackResult;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Entity\User;
+
 /**
  * @extends ServiceEntityRepository<FeedbackResult>
  */
@@ -19,7 +20,7 @@ class FeedbackResultRepository extends ServiceEntityRepository
     public function findUserStats(User $user): array
     {
         return $this->createQueryBuilder('f') // 'f' == FeedbackResult
-            ->select('AVG(f.overallScore) as averageScore, COUNT(f.id) as totalPresentations')
+        ->select('AVG(f.overallScore) as averageScore, COUNT(f.id) as totalPresentations')
             ->where('f.user = :user')
             ->setParameter('user', $user)
             ->getQuery()

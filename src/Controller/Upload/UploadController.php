@@ -2,10 +2,11 @@
 
 namespace App\Controller\Upload;
 
-use App\Repository\UserRepository;
 use App\Entity\FeedbackResult;
 use App\Message\ProcessPresentationJob;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,8 +21,8 @@ class UploadController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-    )
-    {}
+    ) {
+    }
 
     #[Route('/api/upload', name: 'api_upload', methods: ['POST'])]
     #[IsGranted('PUBLIC_ACCESS')]
@@ -30,11 +31,11 @@ class UploadController extends AbstractController
         MessageBusInterface $bus,
         SluggerInterface $slugger,
         string $uploadsDirectory,
-        UserRepository  $userRepo,
+        UserRepository $userRepo,
     ): Response {
         $file = $request->files->get('presentation');
 
-        if(!$file) {
+        if (!$file) {
             return $this->json(['error' => 'No file uploaded. ', 400]);
         }
 
@@ -46,15 +47,15 @@ class UploadController extends AbstractController
 
         $userDTO = $this->getUser();
 
-        if($userDTO){
+        if ($userDTO) {
             $realUser = $userRepo->findOneBy(['email' => $userDTO->getUserIdentifier()]);
 
-            if($realUser){
+            if ($realUser) {
                 $feedbackResult->setUser($realUser);
             }
         }
 
-        if($this->getUser()) {
+        if ($this->getUser()) {
             $feedbackResult->setUser($this->getUser());
         }
         $this->entityManager->persist($feedbackResult);
@@ -62,9 +63,9 @@ class UploadController extends AbstractController
 
         $newFileName = $jobId . '.' . $file->guessExtension();
 
-        try{
+        try {
             $file->move($uploadsDirectory, $newFileName);
-        }catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->json(['error' => 'Could not save file.'], 500);
         }
 
@@ -72,6 +73,5 @@ class UploadController extends AbstractController
         $bus->dispatch(new ProcessPresentationJob($jobId, $filepath));
 
         return $this->json(['jobId' => $jobId], 202);
-
     }
 }

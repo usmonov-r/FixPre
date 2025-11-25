@@ -2,21 +2,19 @@
 
 namespace App\MessageHandler;
 
-use App\Entity\FeedbackResult;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Message\ProcessPresentationJob;
-use App\Service\GeminiFeedbackService;
 use App\Repository\FeedbackResultRepository;
-
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-
+use App\Service\GeminiFeedbackService;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use PhpOffice\PhpPresentation\IOFactory;
+use PhpOffice\PhpPresentation\Shape\AutoShape;
+use PhpOffice\PhpPresentation\Shape\Group;
 use PhpOffice\PhpPresentation\Shape\RichText;
 use PhpOffice\PhpPresentation\Shape\RichText\TextRun;
 use PhpOffice\PhpPresentation\Shape\Table;
-use PhpOffice\PhpPresentation\Shape\Group;
-use PhpOffice\PhpPresentation\Shape\AutoShape;
 use PhpOffice\PhpPresentation\Shape\TextBox;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
 class ProcessPresentationHandler
@@ -26,7 +24,7 @@ class ProcessPresentationHandler
         private GeminiFeedbackService $geminiService,
         private FeedbackResultRepository $repository
 
-    ){
+    ) {
     }
 
     public function __invoke(ProcessPresentationJob $job)
@@ -34,11 +32,10 @@ class ProcessPresentationHandler
         $jobId = $job->getJobId();
         $filepath = $job->getFilePath();
 
-
         // fetch the existing job
         $result = $this->repository->findOneBy(['job_id' => $jobId]);
 
-        if (!$result){
+        if (!$result) {
             error_log(" --- WORKER: FAILED, Job $jobId not found in db. ---- ");
             return;
         }
@@ -54,8 +51,7 @@ class ProcessPresentationHandler
             $result->setStatus('complete');
             $result->setFeedback($aiFeedback);
             $result->setOverallScore((int)$aiFeedback['overall_score']);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log("--- WORKER: FAILED for $jobId --- ");
             error_log($e->getMessage());
             $result->setStatus('failed');
@@ -63,12 +59,10 @@ class ProcessPresentationHandler
         } finally {
             $this->entityManager->flush();
 
-            if(file_exists($filepath)){
+            if (file_exists($filepath)) {
                 unlink($filepath);
-
             }
         }
-
 
         $this->entityManager->flush();
         error_log(" --- WORKER: job $jobId finished");
@@ -86,41 +80,44 @@ class ProcessPresentationHandler
             $slideFeedback['slide_' . $slideNumber] = implode("\n", $slideText);
             $slideNumber++;
         }
+
         return $slideFeedback;
     }
+
     private function findTextInShape(iterable $shapes): array
     {
         $textFound = [];
 
-        foreach($shapes as $shape) {
-//            error_log('Shape type: ' . get_class($shape));
-            if($shape instanceof Group){
-                $textFound = array_merge($textFound, $this->findTextInShape($shape->getShapeCollection()));
-//                $groupText = $this->findTextInShape($shape->getShapeCollection());
-//                $textFound = array_merge($textFound, $groupText);
+        foreach ($shapes as $shape) {
 
-            }elseif ($shape instanceof Table) {
-                foreach($shape->getRows() as $row){
-                    foreach($row->getCells() as $cell){
+            if ($shape instanceof Group) {
+                $textFound = array_merge($textFound, $this->findTextInShape($shape->getShapeCollection()));
+            } elseif ($shape instanceof Table) {
+
+                foreach ($shape->getRows() as $row) {
+                    foreach ($row->getCells() as $cell) {
                         $cellText = $this->extractTextFromRichText($cell);
                         $textFound = array_merge($textFound, $cellText);
                     }
                 }
-            } elseif($shape instanceof  RichText ||
-                     $shape instanceof  AutoShape ||
-                     $shape instanceof TextBox) {
+
+            } elseif ($shape instanceof RichText ||
+                $shape instanceof AutoShape ||
+                $shape instanceof TextBox) {
                 $shapeText = $this->extractTextFromRichText($shape);
                 $textFound = array_merge($textFound, $shapeText);
             }
         }
+
         return $textFound;
     }
 
     private function extractTextFromRichText($shape): array
     {
         $textFound = [];
-        foreach($shape->getParagraphs() as $paragraph){
-            foreach ($paragraph->getRichTextElements() as $element){
+        foreach ($shape->getParagraphs() as $paragraph) {
+            foreach ($paragraph->getRichTextElements() as $element) {
+
                 if (method_exists($element, 'getText')) {
                     $text = trim($element->getText());
                     if ($text !== '') {

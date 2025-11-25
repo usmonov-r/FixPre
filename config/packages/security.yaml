@@ -31,15 +31,15 @@ security:
             jwt: ~
 
     access_control:
-#         PUBLIC routes for anonymous users
+        #         PUBLIC routes for anonymous users
         - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
-        - { path: ^/api/users, roles: PUBLIC_ACCESS, methods: [POST] }
-        - { path: ^/api/upload, roles: PUBLIC_ACCESS, methods: [POST] }
-        - { path: ^/api/results/, roles: PUBLIC_ACCESS, methods: [GET] }
-        - { path: ^/api/feedback_results/, roles: PUBLIC_ACCESS, methods: [GET] }
-        - { path: ^/api/auth/google, roles: PUBLIC_ACCESS, methods: [POST]}
-#         To Allow Swagger
-        - { path: ^/api, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/users, roles: PUBLIC_ACCESS, methods: [ POST ] }
+        - { path: ^/api/upload, roles: PUBLIC_ACCESS, methods: [ POST ] }
+        - { path: ^/api/results/, roles: PUBLIC_ACCESS, methods: [ GET ] }
+        - { path: ^/api/feedback_results/, roles: PUBLIC_ACCESS, methods: [ GET ] }
+        - { path: ^/api/auth/google, roles: PUBLIC_ACCESS, methods: [ POST ] }
+        #         To Allow Swagger
+        - { path: ^/api, roles: PUBLIC_ACCESS, methods: [ GET ] }
 
-#            SECURE routes for logged-in users
+        #            SECURE routes for logged-in users
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
