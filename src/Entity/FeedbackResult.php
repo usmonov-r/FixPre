@@ -3,13 +3,32 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
 use App\Repository\FeedbackResultRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\User;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: FeedbackResultRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations : [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Patch(
+            security: 'is_granted("ROLE_ADMIN")'
+        ),
+        new Delete(
+            security: 'is_granted("ROLE_ADMIN")'
+        )
+    ],
+    normalizationContext: ['groups' => ['feedback:read']],
+    denormalizationContext: ['groups' => ['feedback:write']]
+)]
 class FeedbackResult
 {
     #[ORM\Id]
@@ -23,38 +42,41 @@ class FeedbackResult
     private ?string $job_id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['feedback:read'])]
+    #[Groups(['feedback:read', 'feedback:write'])]
     private ?string $status = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['feedback:read'])]
+    #[Groups(['feedback:read', 'feedback:write'])]
     private ?array $feedback = null;
 
     #[ORM\Column]
     #[Groups(['feedback:read'])]
-    private ?\DateTimeImmutable $created_at = null;
+    private ?DateTimeImmutable $created_at = null;
 
-    public function __construct()
-    {
-        $this->created_at = new \DateTimeImmutable();
-    }
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'feedbackResults')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $user = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['feedback:read'])]
+    #[Groups(['feedback:read', 'feedback:write'])]
     private ?int $overallScore = null;
+
+    public function __construct()
+    {
+        $this->created_at = new DateTimeImmutable();
+    }
 
     public function getUser(): ?User
     {
         return $this->user;
     }
+
     public function setUser(User $user): static
     {
         $this->user = $user;
         return $this;
     }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -96,12 +118,12 @@ class FeedbackResult
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
 
