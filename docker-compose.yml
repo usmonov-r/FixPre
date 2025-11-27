@@ -43,6 +43,17 @@ services:
         restart: unless-stopped
         container_name: ${DOCKER_PROJECT_NAME}_redis
 
+    worker:
+        container_name: ${DOCKER_PROJECT_NAME}_worker
+        build: ./docker/php
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www/html
+            - ./docker/php/php.ini:/local/etc/php/php.ini
+        depends_on:
+            -   db
+            - redis
+        command: php bin/console messenger:consume async --memory-limit=128M -vv
 
 
 #    backup:
