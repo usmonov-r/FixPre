@@ -39,7 +39,7 @@ class GoogleOAuthAction extends AbstractController
         try {
             $accessToken = $client->getOAuth2Provider()->getAccessToken('authorization_code', [
                 'code' => $code,
-                'redirect_uri' => 'http://localhost:5173/auth/callback'
+                'redirect_uri' => 'https://fixpre.kengroq.uz/auth/callback'
             ]);
 
             $googleUser = $client->fetchUserFromToken($accessToken);
