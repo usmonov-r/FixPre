@@ -1,9 +1,13 @@
-# FixPre - AI Presentation Analyst 🚀
+<div align="center">
+    
+# FixPre - AI Presentation Analyst 🚀 - [DEMO](https://fixpre.kengroq.uz)
+
 
 FixPre is a full-stack web application that helps students and professionals improve their PowerPoint presentations. Users upload `.pptx` files, and the system uses Google's Gemini AI to analyze the content, structure, and clarity of each slide, providing actionable feedback and a quality score.
 
 ![Project Status](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+</div>
 
 ## 🌟 Key Features
 
