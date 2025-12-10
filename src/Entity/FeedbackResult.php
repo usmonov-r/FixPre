@@ -46,7 +46,7 @@ class FeedbackResult
     #[Groups(['feedback:read'])]
     private ?int $overallScore = null;
 
-    public function getUser(): User
+    public function getUser(): ?User
     {
         return $this->user;
     }
