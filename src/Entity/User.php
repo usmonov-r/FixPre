@@ -16,7 +16,7 @@ use App\Component\User\Dtos\PasswordRequestDto;
 use App\Component\User\Dtos\PasswordResetDto;
 use App\Component\User\Dtos\RefreshTokenRequestDto;
 use App\Component\User\Dtos\TokensDto;
-use App\Controller\DeleteAction;
+use App\Controller\Feedback\DeleteAction;
 use App\Controller\PasswordRequestAction;
 use App\Controller\PasswordResetAction;
 use App\Controller\UserAboutMeAction;

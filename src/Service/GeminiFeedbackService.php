@@ -26,7 +26,7 @@ class GeminiFeedbackService
         try {
 
 
-            $result = $client->generativeModel('gemini-2.0-flash')
+            $result = $client->generativeModel('gemini-2.5-flash')
                 ->generateContent(new TextPart($fullPrompt));
 
             $responseText = $result->text();
@@ -34,6 +34,9 @@ class GeminiFeedbackService
             if (is_null($cleanedText)) {
                 $cleanedText = trim(str_replace(['```json', '```'], '', $responseText));
             }
+
+            sleep(4);
+
             $jsonFeedBack = json_decode($cleanedText, true);
 
             if (json_last_error() !== JSON_ERROR_NONE){

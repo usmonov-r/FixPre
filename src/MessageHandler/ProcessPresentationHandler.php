@@ -93,11 +93,8 @@ class ProcessPresentationHandler
         $textFound = [];
 
         foreach($shapes as $shape) {
-//            error_log('Shape type: ' . get_class($shape));
             if($shape instanceof Group){
                 $textFound = array_merge($textFound, $this->findTextInShape($shape->getShapeCollection()));
-//                $groupText = $this->findTextInShape($shape->getShapeCollection());
-//                $textFound = array_merge($textFound, $groupText);
 
             }elseif ($shape instanceof Table) {
                 foreach($shape->getRows() as $row){

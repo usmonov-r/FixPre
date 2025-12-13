@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Feedback;
 use App\Repository\FeedbackResultRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 class ResultController extends  AbstractController
 {
     #[Route('/api/results/{jobId}', name: 'api_get_results', methods: ['GET'])]
